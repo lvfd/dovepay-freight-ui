@@ -382,27 +382,103 @@ FeeDiscountItem.getAsset = function(feeItemData, feeTypeData, type) {
 
   // 费用减免项：
   var feeItemDiv = document.createElement('div');
-  feeItemDiv.setAttribute('class', 'uk-width-small');
+  feeItemDiv.setAttribute('class', 'uk-width-medium');
   wrapDiv.appendChild(feeItemDiv);
   var feeItemLabel = document.createElement('label');
   feeItemLabel.setAttribute('class', 'uk-form-label');
   feeItemLabel.setAttribute('for', 'discountFeeKey');
   feeItemLabel.innerText = '费用减免项';
   feeItemDiv.appendChild(feeItemLabel);
-  var feeItemSelect = document.createElement('select');
-  feeItemSelect.setAttribute('class', 'uk-select');
-  feeItemSelect.setAttribute('name', 'discountFeeKey');
-  feeItemDiv.appendChild(feeItemSelect);
-  for (let i = 0; i < feeItemData.length; i++) {
-    let op = document.createElement('option');
-    for ( let key in feeItemData[i]) {
-      if (key == 'feeShortNm') {
-        op.innerText = feeItemData[i][key];
-      }
-      op.setAttribute('data-' + key, feeItemData[i][key]);
+
+  /* 由单选: */
+  // var feeItemSelect = document.createElement('select');
+  // feeItemSelect.setAttribute('class', 'uk-select');
+  // feeItemSelect.setAttribute('name', 'discountFeeKey');
+  // feeItemDiv.appendChild(feeItemSelect);
+  // for (let i = 0; i < feeItemData.length; i++) {
+  //   let op = document.createElement('option');
+  //   for ( let key in feeItemData[i]) {
+  //     if (key == 'feeShortNm') {
+  //       op.innerText = feeItemData[i][key];
+  //     }
+  //     op.setAttribute('data-' + key, feeItemData[i][key]);
+  //   }
+  //   feeItemSelect.appendChild(op);
+  // }
+  
+  /* 改为多选: */
+  /* 组件结构: 
+    feeItemAsset
+      feeItemButton
+      feeItemButtonModal
+  */
+  const feeItemAsset = document.createElement('div')
+  feeItemDiv.appendChild(feeItemAsset)
+  feeItemAsset.classList.add('uk-flex', 'discountFeeKey')
+  
+  const feeIteminput = document.createElement('input')
+  feeItemAsset.appendChild(feeIteminput)
+  feeIteminput.classList.add('uk-input')
+  feeIteminput.style.textOverflow = 'ellipsis'
+  feeIteminput.setAttribute('placeholder', '请选择减免项')
+  feeIteminput.setAttribute('readonly', 'readonly')
+
+  const feeItemButton = document.createElement('button')
+  feeItemAsset.appendChild(feeItemButton)
+  const feeItemButtonModal = document.createElement('div')
+  feeItemAsset.appendChild(feeItemButtonModal)
+
+  /* feeItemButton: */
+  feeItemButton.innerHTML = '<i class="fa fa-caret-right" aria-hidden="true"></i>'
+  feeItemButton.classList.add('uk-button', 'uk-button-primary')
+  feeItemButton.setAttribute('type', 'button')
+
+  /* feeItemButtonModal: */
+  feeItemButtonModal.setAttribute('uk-drop', 'mode: click; pos: right-bottom')
+  const cardFrame = document.createElement('div')
+  feeItemButtonModal.appendChild(cardFrame)
+  cardFrame.classList.add('uk-card', 'uk-card-default')
+  const feeItemButtonModalBody = document.createElement('div')
+  cardFrame.appendChild(feeItemButtonModalBody)
+  feeItemButtonModalBody.classList.add('uk-card-body', 'uk-height-large', 'uk-overflow-auto')
+  const feeItemButtonModalBodyUl = document.createElement('ul')
+  feeItemButtonModalBody.appendChild(feeItemButtonModalBodyUl)
+  feeItemButtonModalBodyUl.classList.add('uk-list','uk-list-divider')
+  feeItemData.forEach(data => {
+    if (data['feeShortNm']) { 
+      const li = document.createElement('li')
+      feeItemButtonModalBodyUl.appendChild(li)
+      const cb = document.createElement('input')
+      li.appendChild(cb)
+      cb.type = 'checkbox'
+      cb.classList.add('uk-checkbox', 'uk-margin-small-right')
+      cb.setAttribute('data-feeShortNm', data['feeShortNm'])
+      cb.setAttribute('data-feeId', data['feeId']? data['feeId']: '')
+      const span = document.createElement('span')
+      li.appendChild(span)
+      span.innerText = data['feeShortNm']
     }
-    feeItemSelect.appendChild(op);
-  }
+  })
+  const cardFooter = document.createElement('div')
+  cardFrame.appendChild(cardFooter)
+  cardFooter.classList.add('uk-card-footer')
+  const footerBtn = document.createElement('button')
+  cardFooter.appendChild(footerBtn)
+  footerBtn.classList.add('uk-button', 'uk-button-primary', 'uk-align-center')
+  footerBtn.innerText = '确认'
+  footerBtn.setAttribute('type', 'button')
+  footerBtn.addEventListener('click', () => {
+    const cbList = feeItemButtonModalBodyUl.querySelectorAll('input[type="checkbox"]')
+    const checkedValue = []
+    cbList.forEach(cb => {
+      if (cb.checked) {
+        checkedValue.push(cb.getAttribute('data-feeShortNm'))
+      }
+    })
+    console.log(checkedValue)
+    feeIteminput.value = checkedValue
+    UIkit.drop(feeItemButtonModal).hide(false)
+  })
 
   // 费用减免类型：
   var feeTypeDiv = document.createElement('div');
@@ -633,18 +709,38 @@ DiscountPagesSubmit.getDiscountFeeRequestList = function() {
   var listArr = document.querySelectorAll('.fn_getDiscountFeeRequestList');
   if (listArr.length < 1) { return null; }
   for (var i = 0; i < listArr.length; i++) {
-    var child = {};
-    var keySelect = listArr[i].querySelector('select[name=discountFeeKey]');
+    // var child = {};
+    
+    /* select */
+    // var keySelect = listArr[i].querySelector('select[name=discountFeeKey]');
+
+    /* 改成checkbox */
+    const keyCheckboxList = listArr[i].querySelectorAll('div.discountFeeKey input[type="checkbox"]')
+    
     var typeSelect = listArr[i].querySelector('select[name=discountFeeType]');
     var discountFeeType = typeSelect.options[typeSelect.selectedIndex].getAttribute('data-key');
-    var discountFeeKey = keySelect.options[keySelect.selectedIndex].getAttribute('data-feeId');
-    var discountFeeKeyName = listArr[i].querySelector('select[name=discountFeeKey]').value;
     var discountFeeValue = listArr[i].querySelector('input[name=discountFeeValue]').value;
-    child.discountFeeType = discountFeeType;
-    child.discountFeeKey = discountFeeKey;
-    child.discountFeeKeyName = discountFeeKeyName;
-    child.discountFeeValue = discountFeeValue;
-    result.push(child);
+    
+    /* select prop: */
+    // var discountFeeKey = keySelect.options[keySelect.selectedIndex].getAttribute('data-feeId');
+    // var discountFeeKeyName = listArr[i].querySelector('select[name=discountFeeKey]').value;
+    // child.discountFeeType = discountFeeType;
+    // child.discountFeeKey = discountFeeKey;
+    // child.discountFeeKeyName = discountFeeKeyName;
+    // child.discountFeeValue = discountFeeValue;
+    // result.push(child);
+
+    /* 改成checkbox prop: */
+    keyCheckboxList.forEach(cb => {
+      if (cb.checked) {
+        const data = {}
+        data.discountFeeType = discountFeeType
+        data.discountFeeKey = cb.getAttribute('data-feeid')
+        data.discountFeeKeyName = cb.getAttribute('data-feeshortnm')
+        data.discountFeeValue = discountFeeValue
+        result.push(data)
+      }
+    })
   }
   var inputFeerate = document.querySelector('input[name=feerate]').value;
   if (inputFeerate) {

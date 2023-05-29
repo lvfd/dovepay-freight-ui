@@ -1,5 +1,5 @@
 const path = require('path')
-const env = process.env.NODE_ENV
+const env = process.env.NODE_ENV? process.env.NODE_ENV: 'production'
 
 module.exports = {
   mode: env,
@@ -9,7 +9,8 @@ module.exports = {
   },
   output: {
     filename: env === 'production'? '[name].min.js': '[name].js',
-    path: path.resolve(__dirname, 'release')
+    // path: path.resolve(__dirname, 'release')
+    path: path.resolve(__dirname, '../', 'dovepay-freight/dist')
   },
   module: {
     rules: [{
