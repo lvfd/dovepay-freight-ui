@@ -1,5 +1,6 @@
 const path = require('path')
 const env = process.env.NODE_ENV? process.env.NODE_ENV: 'production'
+const ProgressBarWebpackPlugin = require('progress-bar-webpack-plugin')
 
 module.exports = {
   mode: env,
@@ -12,6 +13,9 @@ module.exports = {
     // path: path.resolve(__dirname, 'release')
     path: path.resolve(__dirname, '../', 'dovepay-freight/dist')
   },
+  plugins: [
+    new ProgressBarWebpackPlugin()
+  ],
   module: {
     rules: [{
       test: /\.m?js$/,
