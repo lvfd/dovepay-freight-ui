@@ -1,19 +1,28 @@
 import Glob_fn from './Global'
 import fn_queryDict from './QueryDict'
-import {Listbox, initListBox} from './Listbox'
+import { Listbox, initListBox } from './Listbox'
 import FormValidate from './FormValidate'
 import fn_initPaginate from './Paginate'
 import {
-  checkRes, fetchData, fn_initSubmitBtn, fn_initExportBtn,
-  fetch_exportExcel, fetch_sta_stationBillPush,
-  fetch_sta_getStationAllConsumer, fetch_sta_addDiscountCustomer,
-  fetch_sta_getAllDiscountPolicy, fetch_age_toPay,
-  fetch_sta_queryDiscountPolicy, fetch_sta_queryDiscountCustomer,
-  fetch_sta_changeCustomerDiscountStatus, fetch_sta_changeDiscountStatus,
+  checkRes,
+  fetchData,
+  fn_initSubmitBtn,
+  fn_initExportBtn,
+  fetch_exportExcel,
+  fetch_sta_stationBillPush,
+  fetch_sta_getStationAllConsumer,
+  fetch_sta_addDiscountCustomer,
+  fetch_sta_getAllDiscountPolicy,
+  fetch_age_toPay,
+  fetch_sta_queryDiscountPolicy,
+  fetch_sta_queryDiscountCustomer,
+  fetch_sta_changeCustomerDiscountStatus,
+  fetch_sta_changeDiscountStatus,
   fetch_sta_updateFee
 } from './AjaxManager'
 
 var role = getRole();
+
 function getRole() {
   try {
     return document.getElementById('userType').value;
@@ -29,15 +38,17 @@ export function initStation_baseData() {
     // minDate: '{%y-1}-{%M+9}-%d',
     maxDate: 'today',
   });
-  entry();  // 异步函数调用入口
+  entry(); // 异步函数调用入口
   function entry() {
     fetchExpImp();
   }
+
   function fetchDictErrHandler(res) {
     if (res.data === undefined) throw new Error('远程数据非法: 字典接口返回值未定义');
     if (!Array.isArray(res.data)) throw new Error('远程数据非法: 字典接口返回值格式错误');
     if (res.data.length < 1) throw new Error('远程数据非法: 字典接口返回值为空值');
   }
+
   function setOptions(arr, selName) {
     var sel = document.querySelector('select[name=' + selName + ']');
     if (!sel) return;
@@ -48,6 +59,7 @@ export function initStation_baseData() {
       sel.appendChild(op);
     }
   }
+
   function fetchExpImp() {
     fn_queryDict('EXP_IMP', function(res) {
       if (checkRes(res) === false) return;
@@ -61,6 +73,7 @@ export function initStation_baseData() {
       }
     });
   }
+
   function fetchDomInt() {
     fn_queryDict('DOM_INT', function(res) {
       if (checkRes(res) === false) return;
@@ -74,6 +87,7 @@ export function initStation_baseData() {
       }
     });
   }
+
   function fetchPayMode() {
     fn_queryDict('PAY_MODE', function(res) {
       if (checkRes(res) === false) return;
@@ -91,18 +105,20 @@ export function initStation_baseData() {
       }
     });
   }
+
   function fetchEffectiveBillRules() {
     var api = document.querySelector('input[name=api_queryEffectiveBillRule');
     var url = api.value;
     fetchData(url, '', createEffectiveBillRules);
   }
+
   function createEffectiveBillRules(res) {
     var data = res.data || res.date;
     try {
       if (data === undefined) throw new Error('远程数据格式非法: 没有data属性');
       if (!Array.isArray(data)) throw new Error('远程数据格式非法: data属性不是数组');
       if (data.length < 1) throw new Error('没有已生效的账单规则(此功能可选)');
-    } catch(err) {
+    } catch (err) {
       // Glob_fn.errorHandler(err, initPage); // 显示异常
       initPage(); // 不处理异常
     }
@@ -116,16 +132,18 @@ export function initStation_baseData() {
       Glob_fn.errorHandler(error);
       return;
     }
+
     function createBillRuleButtons(data) {
-      var rule = data.billRule? data.billRule: 'NULL';
-      var desc = data.billRuleDesc? data.billRuleDesc: 'NULL';
-      var id = data.billRuleId? data.billRuleId: 'NULL';
-      var name = data.billRuleName? data.billRuleName: 'NULL';
+      var rule = data.billRule ? data.billRule : 'NULL';
+      var desc = data.billRuleDesc ? data.billRuleDesc : 'NULL';
+      var id = data.billRuleId ? data.billRuleId : 'NULL';
+      var name = data.billRuleName ? data.billRuleName : 'NULL';
       var position = document.getElementById('ruleSetsWrap');
       var wrap = document.createElement('div');
       position.appendChild(wrap);
       wrap.appendChild(getLabel());
       wrap.appendChild(getDrop());
+
       function getLabel() {
         var label = document.createElement('label');
         label.setAttribute('class', 'void button');
@@ -139,6 +157,7 @@ export function initStation_baseData() {
         input.setAttribute('id', id);
         return label;
       }
+
       function getDrop() {
         var drop = document.createElement('div');
         drop.setAttribute('uk-drop', 'delay-hide:0');
@@ -148,6 +167,7 @@ export function initStation_baseData() {
         cardFrame.appendChild(getCardHeader());
         cardFrame.appendChild(getCardBody());
         return drop;
+
         function getCardHeader() {
           var header = document.createElement('div');
           header.setAttribute('class', 'uk-card-header');
@@ -159,6 +179,7 @@ export function initStation_baseData() {
           h.innerText = name;
           return header;
         }
+
         function getCardBody() {
           var div = document.createElement('div');
           div.setAttribute('class', 'uk-card-body uk-container uk-container-xsmall');
@@ -176,7 +197,7 @@ export function initStation_baseData() {
               span.innerText = $.trim(array[j]);
               div.appendChild(span);
             }
-          } catch(error) {
+          } catch (error) {
             div.innerText = error;
           }
           return div;
@@ -184,6 +205,7 @@ export function initStation_baseData() {
       }
     }
   }
+
   function renderEffectiveBillRules() {
     var ruleSetsWrapDiv = document.getElementById('ruleSetsWrap');
     var ruleRadios = ruleSetsWrapDiv.querySelectorAll('input[type=radio]');
@@ -195,7 +217,7 @@ export function initStation_baseData() {
       func.initActiveLabel(radio);
       radio.addEventListener('change', func.setBindingLabels(ruleRadios));
       radio.addEventListener('click', function(event) {
-        event.stopPropagation();  // 阻止事件上升到label
+        event.stopPropagation(); // 阻止事件上升到label
       });
     }
     // Bind labels: 
@@ -212,9 +234,10 @@ export function initStation_baseData() {
       defaultRadio.click(); // 重置为全部
     });
   }
+
   function initPage() {
     fn_initSubmitBtn(1, 15, fetchData, new Sta_table().getTable_queryOriginalWaybill, function(data) {
-      if (data.billRule === '') 
+      if (data.billRule === '')
         data.billRule = null;
     }, {
       timeout: 20000,
@@ -238,6 +261,7 @@ export function initStation_stationQueryBill_new() {
   } else {
     initNewPage();
   }
+
   function initPage() {
     Glob_fn.WdateInit('startTime', 'endTime', {
       dateFmt: 'yyyy年MM月',
@@ -247,12 +271,14 @@ export function initStation_stationQueryBill_new() {
     });
     fn_initSubmitBtn(1, 15, fetchData, new Sta_table().getTable_queryBill_new);
   }
+
   function initNewPage() {
     Glob_fn.setPostLink(document.querySelectorAll('.postDataLink'), Glob_fn.getOrderTime());
     fn_initSubmitBtn(1, 15, fetchData, new Sta_table().getTable_queryBill_new);
     fn_initExportBtn(fetch_exportExcel);
     if (role === 'system') return;
     if (role === 'station') setMultiPushButton();
+
     function setMultiPushButton() {
       var multiBtn = document.getElementById('multiBtn');
       multiBtn.addEventListener('click', function(event) {
@@ -265,7 +291,7 @@ export function initStation_stationQueryBill_new() {
           UIkit.modal.alert('请选择至少一项');
           return;
         }
-        var postData = {orderNoList: list};
+        var postData = { orderNoList: list };
         // console.log(url, postData);
         fetch_sta_stationBillPush(url, postData);
       });
@@ -282,6 +308,7 @@ export function initStation_stationQueryBillDetails_new() {
     Glob_fn.setOpedepartId(res);
     initThisPage();
   });
+
   function initThisPage() {
     if (role !== 'agent') Glob_fn.setPostLink(document.querySelectorAll('.postDataLink'), Glob_fn.getOrderTime());
     // bind submit button:
@@ -328,7 +355,7 @@ export function initStation_getAllDiscountPolicy() {
     for (var i = 0; i < DISCOUNT_TYPE.length; i++) {
       var op = document.createElement('option');
       for (var key in DISCOUNT_TYPE[i]) {
-        if ( key == 'value') {
+        if (key == 'value') {
           op.innerText = DISCOUNT_TYPE[i][key];
         }
         if (key == 'key') {
@@ -342,7 +369,7 @@ export function initStation_getAllDiscountPolicy() {
     // init Wdate:
     Glob_fn.WdateInit('startTime', 'endTime');
     Glob_fn.WdateInit('setStartTime', 'setEndTime');
-    
+
     // bind submit:
     fn_initSubmitBtn(1, 10, fetch_sta_getAllDiscountPolicy);
 
@@ -362,6 +389,7 @@ export function initStation_billsSetting() {
   });
   // Bind Add rule Button:
   bindAddRuleBtn();
+
   function bindAddRuleBtn() {
     var btn = document.getElementById('addRule');
     btn.addEventListener('click', function(event) {
@@ -377,8 +405,9 @@ export function initStation_billsSetting_addRule() {
   var vld = new FormValidate();
   var validator = vld.validator();
   // fetch data:
-  fetchBillRule();
-  function fetchBillRule() {
+  fetchBillRule()
+
+  function fetchBillRule( /*data*/ ) {
     fn_queryDict('BILL_RULE', function(res) {
       if (checkRes(res) === false) return;
       try {
@@ -386,16 +415,16 @@ export function initStation_billsSetting_addRule() {
         if (!Array.isArray(res.data)) throw new Error('远程数据非法: data属性不是数组');
         if (res.data.length != 1) throw new Error('远程数据非法: data数组长度不为1');
         if (!Glob_fn.isJSON(res.data[0].value)) throw new Error('远程数据非法: 数据不是JSON格式');
-        showValueFrom(JSON.parse(res.data[0].value));
-        initPage();
       } catch (error) {
         Glob_fn.errorHandler(error);
         return;
       }
+      showValueFrom(JSON.parse(res.data[0].value))
+      initPage();
     });
   }
+
   function showValueFrom(fetchValue) {
-    // console.log(fetchValue);
     if (!Array.isArray(fetchValue)) throw new Error('远程数据非法: JSON数据不是数组');
     if (fetchValue.length < 1) throw new Error('无规则可选');
     var radiosHeading = document.getElementById('radiosHeading');
@@ -419,32 +448,43 @@ export function initStation_billsSetting_addRule() {
     if (checkboxesCount > 1 && checkAllWrap.hasAttribute('hidden')) {
       checkAllWrap.removeAttribute('hidden');
     }
+
     function setRule(data) {
-      var name = data.name? data.name: 'NULL';
-      var type = data.type? data.type: 'NULL';
-      var wrap = data.checkBox? document.getElementById('checkboxesWrap'):
-        document.getElementById('radiosWrap');
-      var frame = getFrame();
-      wrap.appendChild(frame);
-      var label = getLabel();
-      var contentDiv = getContentDiv();
-      frame.appendChild(label);
-      frame.appendChild(contentDiv);
-      if (!Array.isArray(data.content)) throw new Error('远程数据非法: content不是数组');
-      if (data.content.length < 1) throw new Error(data.name + '类型下无数据');
-      for (var j = 0; j < data.content.length; j++) {
-        var key = data.content[j].key? data.content[j].key: '';
-        var value = data.content[j].value? data.content[j].value: 'NULL';
-        var content = getContent(key, value);
-        contentDiv.appendChild(content);
+      try {
+        console.log(data);
+        var name = data.name ? data.name : 'NULL';
+        var type = data.type ? data.type : 'NULL';
+        var wrap = data.checkBox ?
+          document.getElementById('checkboxesWrap') :
+          document.getElementById('radiosWrap');
+        var frame = getFrame(data);
+        wrap.appendChild(frame);
+        var label = getLabel(name);
+        var contentDiv = getContentDiv();
+        frame.appendChild(label);
+        frame.appendChild(contentDiv);
+        if (!Array.isArray(data.content)) throw new Error('远程数据非法: content不是数组');
+        if (data.content.length < 1) throw new Error(data.name + '类型下无数据');
+        for (var j = 0; j < data.content.length; j++) {
+          var key = data.content[j].key ? data.content[j].key : '';
+          var value = data.content[j].value ? data.content[j].value : 'NULL';
+          var content = getContent(key, value);
+          contentDiv.appendChild(content);
+        }
+        return
+      } catch (error) {
+        Glob_fn.errorHandler(error)
+        return
       }
-      function getFrame() {
+
+      function getFrame(data) {
         var frame = document.createElement('div');
         frame.setAttribute('class', 'uk-margin');
         if (!data.checkBox) frame.classList.add('radioWrap');
         return frame;
       }
-      function getLabel() {
+
+      function getLabel(name) {
         var label = document.createElement('label');
         label.setAttribute('class', 'uk-form-label');
         label.setAttribute('data-ruleType', type);
@@ -452,20 +492,22 @@ export function initStation_billsSetting_addRule() {
         label.innerText = name;
         return label;
       }
+
       function getContentDiv() {
         var contentWrap = document.createElement('div');
         contentWrap.setAttribute('class', 'uk-form-controls uk-grid-small');
         contentWrap.setAttribute('uk-grid', '');
         return contentWrap;
       }
+
       function getContent(key, value) {
         var div = document.createElement('div');
         var label = document.createElement('label');
         label.setAttribute('class', 'void button');
         div.appendChild(label);
         var input = document.createElement('input');
-        input.setAttribute('type', data.checkBox? 'checkbox': 'radio');
-        input.setAttribute('class', data.checkBox? 'linkLabel': '');
+        input.setAttribute('type', data.checkBox ? 'checkbox' : 'radio');
+        input.setAttribute('class', data.checkBox ? 'linkLabel' : '');
         input.setAttribute('name', type);
         input.setAttribute('hidden', '');
         input.setAttribute('value', key);
@@ -480,11 +522,21 @@ export function initStation_billsSetting_addRule() {
       }
     }
   }
+
   function initPage() {
+    // set default input:
+    document.querySelectorAll('.radioWrap').forEach(div => {
+      div.querySelectorAll('input[type="radio"]').forEach((input, index) => {
+        if (input.name !== 'PAY_MODE' && index === 0) {
+          input.setAttribute('checked', '')
+        }
+      })
+    })
     // vld: bindItems:
     validator.bindFormItems();
     // UI: Bind Radios:
     bindAllRadios();
+
     function bindAllRadios() {
       var wraps = form.querySelectorAll('.radioWrap');
       if (wraps.length < 1) {
@@ -494,6 +546,7 @@ export function initStation_billsSetting_addRule() {
         var wrap = wraps[j];
         bindRadios(wrap);
       }
+
       function bindRadios(wrap) {
         var radios = wrap.querySelectorAll('input[type=radio]');
         if (radios.length < 1) {
@@ -509,11 +562,13 @@ export function initStation_billsSetting_addRule() {
     }
     // UI: Checkboxes:
     checkboxes();
+
     function checkboxes() {
       var cbx_all = document.getElementById('checkAllRules');
       var cbxs = form.querySelectorAll('input[type=checkbox].linkLabel');
       // UI: checkbox绑定样式:
       cbxLinkLabel();
+
       function cbxLinkLabel() {
         if (cbxs.length < 1) {
           return;
@@ -530,6 +585,7 @@ export function initStation_billsSetting_addRule() {
       }
       // UI: 全选功能实现:
       complyCheckAll();
+
       function complyCheckAll() {
         if (!cbx_all) {
           return;
@@ -546,6 +602,7 @@ export function initStation_billsSetting_addRule() {
             setAllChecked(cbxs, false);
           }
         });
+
         function setAllChecked(checkboxes, boo) {
           if (!checkboxes || checkboxes.length < 1) {
             throw new Error('没有找到将要对应的checkbox');
@@ -574,6 +631,7 @@ export function initStation_billsSetting_addRule() {
     }
     // Submit Binding:
     submitAddRule();
+
     function submitAddRule() {
       var btn = document.getElementById('createBill');
       var url = document.querySelector('input[name=url_station_billSetting]').value;
@@ -587,6 +645,7 @@ export function initStation_billsSetting_addRule() {
           try {
             var postData = getPostData();
             var postUrl = document.querySelector('input[name=api_stationCreateBillRule]').value;
+            // console.log(postData);
             fetchData(postUrl, postData, successCallback);
           } catch (error) {
             Glob_fn.errorHandler(error);
@@ -594,6 +653,7 @@ export function initStation_billsSetting_addRule() {
           }
         });
       });
+
       function getPostData() {
         return JSON.stringify({
           billRuleName: getName(),
@@ -601,11 +661,13 @@ export function initStation_billsSetting_addRule() {
           billRuleDesc: getRule().desc,
         });
       }
+
       function getName() {
         var name = document.getElementById('billName').value;
         if (!name) throw new Error('表单错误: 请重新填写账单规则名称');
         return name;
       }
+
       function getRule() {
         try {
           var rs = document.getElementById('radiosWrap').querySelectorAll('input[type=radio]');
@@ -620,18 +682,21 @@ export function initStation_billsSetting_addRule() {
         } catch (error) {
           throw new Error(error);
         }
+
         function getCheckedInputs() {
           var array = [];
           putCheckedInpIn(rs, array);
           putCheckedInpIn(cs, array);
           return array;
         }
+
         function putCheckedInpIn(inputs, array) {
           for (var i = 0; i < inputs.length; i++) {
-            if (inputs[i].checked) 
+            if (inputs[i].checked)
               array.push(inputs[i]);
           }
         }
+
         function getRulesInfo(inputs) {
           var array = [];
           for (var i = 0; i < inputs.length; i++) {
@@ -644,6 +709,7 @@ export function initStation_billsSetting_addRule() {
           }
           return array;
         }
+
         function getResults(rawArray) {
           var result = {};
           var desc = [];
@@ -661,17 +727,19 @@ export function initStation_billsSetting_addRule() {
             rule: JSON.stringify(result),
             desc: parseDesc(desc),
           }
+
           function parseDesc(array) {
             var result = '';
             for (var i = 0; i < array.length; i++) {
               result += array[i].toString();
-              if (i < array.length -1)
+              if (i < array.length - 1)
                 result += ', ';
             }
             return result;
           }
         }
       }
+
       function successCallback() {
         // alert(JSON.stringify(res))
         UIkit.notification(not, {
@@ -686,14 +754,16 @@ export function initStation_billsSetting_addRule() {
   }
 }
 
-export function Sta_table(){}
+export function Sta_table() {}
 // 生成基础数据展示表格（新需求）:
 Sta_table.prototype.getTable_queryOriginalWaybill = function(res, pageNumber, pageSize) {
   getFeeItem();
+
   function getFeeItem() {
     var url = document.querySelector('input[name=api_queryFeeItem]').value;
     fetchData(url, '', createTable);
   }
+
   function createTable(feeItems) {
     try {
       var table = document.getElementById('dataTable');
@@ -703,12 +773,13 @@ Sta_table.prototype.getTable_queryOriginalWaybill = function(res, pageNumber, pa
       setThead(feeItems.data);
       setTbody(res, feeItems.data);
       fn_initPaginate(res, pageNumber, pageSize, fetchData, new Sta_table().getTable_queryOriginalWaybill, function(data) {
-        if (data.billRule === '') 
+        if (data.billRule === '')
           data.billRule = null;
       });
     } catch (error) {
       throw new Error(error)
     }
+
     function setCaption(data) {
       var caption = table.querySelector('caption');
       if (!caption) return;
@@ -718,6 +789,7 @@ Sta_table.prototype.getTable_queryOriginalWaybill = function(res, pageNumber, pa
         caption.removeAttribute('hidden');
       }
     }
+
     function setThead(data) {
       Glob_fn.Table.setTh(trInThead, '序号');
       Glob_fn.Table.setTh(trInThead, '费用记录号');
@@ -737,6 +809,7 @@ Sta_table.prototype.getTable_queryOriginalWaybill = function(res, pageNumber, pa
       Glob_fn.Table.buildAjaxTitle(data, trInThead);
       Glob_fn.Table.setTh(trInThead, '金额');
     }
+
     function setTbody(rawData, ajaxTitle) {
       var tbody = table.querySelector('tbody');
       table.setAttribute('data-hideSome', '');
@@ -780,9 +853,10 @@ Sta_table.prototype.getTable_queryOriginalWaybill = function(res, pageNumber, pa
 Sta_table.prototype.getTable_querySumBillByRule = function(res, pageNumber, pageSize) {
   try {
     createTable(res);
-  } catch(error) {
+  } catch (error) {
     throw new Error(error);
   }
+
   function createTable(res) {
     var table = document.getElementById('dataTable');
     if (!res.data) throw new Error('远程数据非法: data未定义');
@@ -790,14 +864,17 @@ Sta_table.prototype.getTable_querySumBillByRule = function(res, pageNumber, page
     setThead();
     setTbody(res);
     fn_initPaginate(res, pageNumber, pageSize, fetchData, new Sta_table().getTable_querySumBillByRule);
+
     function setThead() {
       Glob_fn.Table.setTh(trInThead, '序号');
       Glob_fn.Table.setTh(trInThead, '账单名称');
       Glob_fn.Table.setTh(trInThead, '开账时间');
       Glob_fn.Table.setTh(trInThead, '账期');
+      Glob_fn.Table.setTh(trInThead, '地服成本中心');
       Glob_fn.Table.setTh(trInThead, '金额');
       Glob_fn.Table.setTh(trInThead, '操作');
     }
+
     function setTbody(res) {
       var tbody = table.querySelector('tbody');
       tbody.innerHTML = '';
@@ -814,9 +891,11 @@ Sta_table.prototype.getTable_querySumBillByRule = function(res, pageNumber, page
         Glob_fn.Table.setTd(tr, data[i].billRuleName);
         Glob_fn.Table.setTd(tr, data[i].accountOpeningTime);
         Glob_fn.Table.setTd(tr, data[i].orderTime);
+        Glob_fn.Table.setTd(tr, data[i].costCenter);
         Glob_fn.Table.setTd(tr, data[i].totalFee);
         Glob_fn.Table.setTd(tr, getLink(data[i].billRuleId));
       }
+
       function getLink(id) {
         if (id === undefined) throw new Error('远程数据非法: summaryList.billRule未定义');
         var link = document.createElement('a');
@@ -837,18 +916,20 @@ Sta_table.prototype.getTable_querySumBillByRule = function(res, pageNumber, page
 Sta_table.prototype.getTable_queryBill_new = function(res, pageNumber, pageSize) {
   try {
     createTable(res);
-  } catch(error) {
+  } catch (error) {
     throw new Error(error);
   }
+
   function createTable(res) {
     var table = document.getElementById('dataTable');
     if (!res.data) throw new Error('远程数据非法: data未定义');
     var trInThead = Glob_fn.Table.getThTr(table);
     var checkAll = Glob_fn.Table.getCheckbox('all');
-    trInThead = role === 'agent'? setAgentThead(): setThead();
+    trInThead = role === 'agent' ? setAgentThead() : setThead();
     setTbody(res);
     if (role === 'station') setCheckAll(checkAll);
     fn_initPaginate(res, pageNumber, pageSize, fetchData, new Sta_table().getTable_queryBill_new);
+
     function setThead() {
       if (role === 'station') Glob_fn.Table.setTh(trInThead, checkAll);
       Glob_fn.Table.setTh(trInThead, '序号');
@@ -858,6 +939,7 @@ Sta_table.prototype.getTable_queryBill_new = function(res, pageNumber, pageSize)
       Glob_fn.Table.setTh(trInThead, '总金额');
       Glob_fn.Table.setTh(trInThead, '状态');
       Glob_fn.Table.setTh(trInThead, '优惠金额');
+      Glob_fn.Table.setTh(trInThead, '地服成本中心');
       Glob_fn.Table.setTh(trInThead, '平台订单号');
       Glob_fn.Table.setTh(trInThead, '交易流水号');
       Glob_fn.Table.setTh(trInThead, '结算客户编码');
@@ -866,6 +948,7 @@ Sta_table.prototype.getTable_queryBill_new = function(res, pageNumber, pageSize)
       Glob_fn.Table.setTh(trInThead, '操作');
       return trInThead;
     }
+
     function setAgentThead() {
       Glob_fn.Table.setTh(trInThead, '序号');
       Glob_fn.Table.setTh(trInThead, '开账时间');
@@ -879,6 +962,7 @@ Sta_table.prototype.getTable_queryBill_new = function(res, pageNumber, pageSize)
       Glob_fn.Table.setTh(trInThead, '操作');
       return trInThead;
     }
+
     function setTbody(res) {
       var tbody = table.querySelector('tbody');
       table.setAttribute('data-hideSome', '400');
@@ -915,6 +999,7 @@ Sta_table.prototype.getTable_queryBill_new = function(res, pageNumber, pageSize)
           Glob_fn.Table.setTd(tr, data[i].totalFeeStr);
           Glob_fn.Table.setTd(tr, data[i].statusStr);
           Glob_fn.Table.setTd(tr, data[i].realTotalFeeStr);
+          Glob_fn.Table.setTd(tr, data[i].costCenter);
           Glob_fn.Table.setTd(tr, data[i].orderNo);
           Glob_fn.Table.setTd(tr, data[i].payNo);
           Glob_fn.Table.setTd(tr, data[i].customerId);
@@ -925,6 +1010,7 @@ Sta_table.prototype.getTable_queryBill_new = function(res, pageNumber, pageSize)
         // Glob_fn.Table.trHideSome(tr);
       }
       return tbody;
+
       function getLinks(data) {
         var orderNo = data.orderNo;
         if (orderNo === undefined) throw new Error('远程数据非法: orderNo未定义');
@@ -935,6 +1021,7 @@ Sta_table.prototype.getTable_queryBill_new = function(res, pageNumber, pageSize)
           if (pushlink) links.push(getPushLink());
         }
         return links;
+
         function getDetailLink() {
           var link = document.createElement('a');
           link.innerText = '查看详情';
@@ -948,6 +1035,7 @@ Sta_table.prototype.getTable_queryBill_new = function(res, pageNumber, pageSize)
           });
           return link;
         }
+
         function getPushLink() {
           if (Number(data.confirm) !== 0) return false;
           if (checkAll.querySelector('input').getAttribute('disabled') === '') {
@@ -970,6 +1058,7 @@ Sta_table.prototype.getTable_queryBill_new = function(res, pageNumber, pageSize)
           return pushlink;
         }
       }
+
       function getAgentLinks(data) {
         var result = [];
         var detailLink = document.createElement('a');
@@ -995,6 +1084,7 @@ Sta_table.prototype.getTable_queryBill_new = function(res, pageNumber, pageSize)
         return result;
       }
     }
+
     function setCheckAll(checkAll) {
       checkAll.addEventListener('click', function() {
         // var children = document.querySelector('input.cb_child');
@@ -1003,6 +1093,7 @@ Sta_table.prototype.getTable_queryBill_new = function(res, pageNumber, pageSize)
         else
           setChildren(false);
       });
+
       function setChildren(status) {
         var children = document.querySelectorAll('input.cb_child');
         for (var i = 0; i < children.length; i++) {
@@ -1015,10 +1106,12 @@ Sta_table.prototype.getTable_queryBill_new = function(res, pageNumber, pageSize)
 // 账单明细主表(新需求)：
 Sta_table.prototype.getTable_queryDetails_new = function(res, pageNumber, pageSize) {
   getFeeItem();
+
   function getFeeItem() {
     var url = document.querySelector('input[name=api_queryFeeItem]').value;
     fetchData(url, '', createTable);
   }
+
   function createTable(feeItems) {
     try {
       var table = document.getElementById('dataTable');
@@ -1031,6 +1124,7 @@ Sta_table.prototype.getTable_queryDetails_new = function(res, pageNumber, pageSi
     } catch (error) {
       throw new Error(error)
     }
+
     function getCaptionData() {
       var inp = document.querySelector('input[name=api_queryBillDetailsSum]');
       if (!inp) return;
@@ -1039,16 +1133,18 @@ Sta_table.prototype.getTable_queryDetails_new = function(res, pageNumber, pageSi
       var postData = JSON.stringify($(document.getElementById('dataForm')).serializeObject());
       fetchData(url, postData, setCaption);
     }
+
     function setCaption(res) {
       var data = res.data;
       var caption = table.querySelector('caption');
       if (!caption) return;
-      caption.querySelector('span.totalCount').innerText = data.totalCount? data.totalCount: '无数据';
-      caption.querySelector('span.totalFee').innerText = data.totalFee? data.totalFee: '无数据';
-      caption.querySelector('span.totalWeight').innerText = data.totalWeight? data.totalWeight: '无数据';
-      caption.querySelector('span.realTotalFee').innerText = data.realTotalFee? data.realTotalFee: '无数据';
+      caption.querySelector('span.totalCount').innerText = data.totalCount ? data.totalCount : '无数据';
+      caption.querySelector('span.totalFee').innerText = data.totalFee ? data.totalFee : '无数据';
+      caption.querySelector('span.totalWeight').innerText = data.totalWeight ? data.totalWeight : '无数据';
+      caption.querySelector('span.realTotalFee').innerText = data.realTotalFee ? data.realTotalFee : '无数据';
       caption.removeAttribute('hidden');
     }
+
     function setThead(data) {
       Glob_fn.Table.setTh(trInThead, '序号');
       Glob_fn.Table.setTh(trInThead, '费用记录号');
@@ -1070,6 +1166,7 @@ Sta_table.prototype.getTable_queryDetails_new = function(res, pageNumber, pageSi
       Glob_fn.Table.setTh(trInThead, '金额');
       if (role !== 'agent') Glob_fn.Table.setTh(trInThead, '操作');
     }
+
     function setTbody(rawData, ajaxTitle) {
       var tbody = table.querySelector('tbody');
       table.setAttribute('data-hideSome', '');
@@ -1112,6 +1209,7 @@ Sta_table.prototype.getTable_queryDetails_new = function(res, pageNumber, pageSi
         if (role !== 'agent') Glob_fn.Table.setTd(trAdd, getAction(data[i], line2Object));
         // Glob_fn.Table.trHideSome(tr);
       }
+
       function getAction(data, line2Object) {
         var linkModHis = document.createElement('a');
         linkModHis.innerText = '修改记录';
@@ -1119,7 +1217,7 @@ Sta_table.prototype.getTable_queryDetails_new = function(res, pageNumber, pageSi
         linkModHis.setAttribute('class', 'uk-margin-small-left');
         linkModHis.addEventListener('click', function(event) {
           event.preventDefault();
-          var postData = JSON.stringify({stockNo: this.getAttribute('data-stockNo')});
+          var postData = JSON.stringify({ stockNo: this.getAttribute('data-stockNo') });
           var url = document.querySelector('input[name=api_queryModifyLog]').value;
           fetchData(url, postData, createModHis);
         });
@@ -1150,6 +1248,7 @@ Sta_table.prototype.getTable_queryDetails_new = function(res, pageNumber, pageSi
       }
     }
   }
+
   function createModHis(res) {
     var data = res.data;
     if (res.data === undefined) throw new Error('远程数据非法: data未定义');
@@ -1186,9 +1285,10 @@ Sta_table.prototype.getTable_queryBillRuleByPage = function(res, pageNumber, pag
     createThead();
     createTbody();
     fn_initPaginate(res, pageNumber, pageSize, fetchData, new Sta_table().getTable_queryBillRuleByPage);
-  } catch(error) {
+  } catch (error) {
     throw new Error(error);
   }
+
   function createThead() {
     Glob_fn.Table.setTh(trInThead, '序号');
     Glob_fn.Table.setTh(trInThead, '账单ID', false);
@@ -1198,12 +1298,14 @@ Sta_table.prototype.getTable_queryBillRuleByPage = function(res, pageNumber, pag
     Glob_fn.Table.setTh(trInThead, '进/出港类型');
     Glob_fn.Table.setTh(trInThead, '运单类型');
     Glob_fn.Table.setTh(trInThead, '是否为快件');
+    Glob_fn.Table.setTh(trInThead, '地服成本中心');
     Glob_fn.Table.setTh(trInThead, '用户名');
     Glob_fn.Table.setTh(trInThead, '状态');
     Glob_fn.Table.setTh(trInThead, '状态码', false);
     Glob_fn.Table.setTh(trInThead, '设置时间');
     Glob_fn.Table.setTh(trInThead, '操作');
   }
+
   function createTbody() {
     var tbody = table.querySelector('tbody');
     tbody.innerHTML = '';
@@ -1226,20 +1328,23 @@ Sta_table.prototype.getTable_queryBillRuleByPage = function(res, pageNumber, pag
       setTdFromArray(tr, data[i].billRule, 'EXP_IMP');
       setTdFromArray(tr, data[i].billRule, 'TRANSFER_TYPE');
       setTdFromArray(tr, data[i].billRule, 'EXP_MAIL');
+      setTdFromArray(tr, data[i].billRule, 'COST_C');
       Glob_fn.Table.setTd(tr, data[i].createName);
       Glob_fn.Table.setTd(tr, data[i].statusStr);
       Glob_fn.Table.setTd(tr, data[i].status, false);
       Glob_fn.Table.setTd(tr, data[i].setTime);
       tr.appendChild(getTdAction(data[i].billRuleId));
     }
+
     function setTdFromArray(parentTr, array, name, showBoo) {
-      var show = showBoo === undefined? true: showBoo;
+      var show = showBoo === undefined ? true : showBoo;
       var td = document.createElement('td');
       parentTr.appendChild(td);
       td.innerText = getValue().text;
       td.setAttribute('data-billRuleType', getValue().type);
       if (!show) td.setAttribute('hidden', '');
       return td;
+
       function getValue() {
         if (!Array.isArray(array)) throw new Error('billRule属性不是数组');
         var text = '-';
@@ -1247,7 +1352,7 @@ Sta_table.prototype.getTable_queryBillRuleByPage = function(res, pageNumber, pag
         for (var j = 0; j < array.length; j++) {
           var type = array[j].type
           if (type === name) {
-            text = array[j].content? array[j].content: text;
+            text = array[j].content ? array[j].content : text;
             ruleType = type;
           }
         }
@@ -1257,6 +1362,7 @@ Sta_table.prototype.getTable_queryBillRuleByPage = function(res, pageNumber, pag
         };
       }
     }
+
     function getTdAction(billRuleId) {
       var td = document.createElement('td');
       td.setAttribute('class', 'uk-table-link');
@@ -1269,7 +1375,7 @@ Sta_table.prototype.getTable_queryBillRuleByPage = function(res, pageNumber, pag
       deleteLink.addEventListener('click', function(event) {
         event.preventDefault();
         var thisBtn = this;
-        UIkit.modal.confirm('删除后不可恢复，确认删除吗？').then(function(){
+        UIkit.modal.confirm('删除后不可恢复，确认删除吗？').then(function() {
           try {
             fetchData(getUrl(), getPostData(thisBtn), successCallback);
           } catch (error) {
@@ -1279,9 +1385,11 @@ Sta_table.prototype.getTable_queryBillRuleByPage = function(res, pageNumber, pag
         })
       });
       return td;
+
       function getUrl() {
         return document.querySelector('input[name=api_deleteRule]').value;
       }
+
       function getPostData(trigger) {
         var billRuleId = trigger.getAttribute('data-billRuleId');
         if (billRuleId === undefined) throw new Error('billRuleId未定义');
@@ -1289,13 +1397,14 @@ Sta_table.prototype.getTable_queryBillRuleByPage = function(res, pageNumber, pag
           'billRuleId': billRuleId,
         });
       }
+
       function successCallback() {
         UIkit.modal.alert('删除成功').then(function() {
           try {
             document.getElementById('submitBtn').click();
           } catch (error) {
             Glob_fn.errorHandler(error);
-            return;            
+            return;
           }
         });
       }
@@ -1329,7 +1438,7 @@ Sta_table.prototype.getTable_getStationAllConsumer = function(res, pageNumber, p
   for (var i = 0; i < data.length; i++) {
     var tr = document.createElement('tr');
     tbody.appendChild(tr);
-    
+
     var tdSerial = document.createElement('td');
     tr.appendChild(tdSerial);
     tdSerial.innerText = i + 1 + (Number(pageNumber) - 1) * Number(pageSize);
@@ -1348,22 +1457,22 @@ Sta_table.prototype.getTable_getStationAllConsumer = function(res, pageNumber, p
     tr.appendChild(td6);
     var linkSet = document.createElement('a');
     var linkShow = document.createElement('a');
-    
+
 
     for (var key in data[i]) {
       if (key == 'customerId') {
-        td1.innerText = data[i][key] === null? '-': data[i][key];
+        td1.innerText = data[i][key] === null ? '-' : data[i][key];
         linkSet.setAttribute('data-' + key, data[i][key]);
         linkShow.setAttribute('data-' + key, data[i][key]);
       }
       if (key == 'customerNameChn')
-        td2.innerText = data[i][key] === null? '-': data[i][key];
+        td2.innerText = data[i][key] === null ? '-' : data[i][key];
       if (key == 'statusDesc')
-        td3.innerText = data[i][key] === null? '-': data[i][key];
-      if (key == 'canYesDesc') 
-        td4.innerText = data[i][key] === null? '-': data[i][key];
+        td3.innerText = data[i][key] === null ? '-' : data[i][key];
+      if (key == 'canYesDesc')
+        td4.innerText = data[i][key] === null ? '-' : data[i][key];
       if (key == 'feeWayDesc')
-        td5.innerText = data[i][key] === null? '-': data[i][key];
+        td5.innerText = data[i][key] === null ? '-' : data[i][key];
     }
 
     var list = data[i];
@@ -1387,7 +1496,7 @@ Sta_table.prototype.getTable_getStationAllConsumer = function(res, pageNumber, p
         event.preventDefault();
         var url = document.querySelector('input[name=api_forDiscShow]').value;
         var customerId = this.getAttribute('data-customerId');
-        var data = {customerId: customerId};
+        var data = { customerId: customerId };
         fetch_sta_queryDiscountCustomer(url, data);
       });
       td6.appendChild(linkShow);
@@ -1414,13 +1523,13 @@ Sta_table.prototype.getTable_queryDiscountCustomer = function(res) {
   for (var i = 0; i < data.length; i++) {
     var tr = document.createElement('tr');
     var td1 = document.createElement('td'),
-        td2 = document.createElement('td'),
-        span1 = document.createElement('span'),
-        span2 = document.createElement('span'),
-        td3 = document.createElement('td');
+      td2 = document.createElement('td'),
+      span1 = document.createElement('span'),
+      span2 = document.createElement('span'),
+      td3 = document.createElement('td');
     var link = document.createElement('a');
     td3.appendChild(link);
-    for ( var key in data[i]) {
+    for (var key in data[i]) {
       if (key == 'discountPolicyName') {
         td1.setAttribute('data-arg', key);
         td1.innerText = data[i][key];
@@ -1475,6 +1584,7 @@ Sta_table.prototype.getTable_queryDiscountCustomer = function(res) {
     tbody.appendChild(tr);
   }
   return tbody;
+
   function getActionText(status, link) {
     if (status == '0') {
       // 启用状态，设置暂停
@@ -1491,7 +1601,7 @@ Sta_table.prototype.getTable_queryDiscountCustomer = function(res) {
 // 优惠设置页面表格：
 Sta_table.prototype.getTable_getAllDiscountPolicy = function(res, pageNumber, pageSize) {
   var table = document.getElementById('dataTable');
-  
+
   var trInThead = Glob_fn.Table.getThTr(table);
   Glob_fn.Table.setTh(trInThead, '序号');
   Glob_fn.Table.setTh(trInThead, '优惠政策名称');
@@ -1536,7 +1646,7 @@ Sta_table.prototype.getTable_getAllDiscountPolicy = function(res, pageNumber, pa
     var toDetailsA = document.createElement('a');
     toDetailsA.innerText = '查看详情';
     toDetailsA.href = location.pathname + '/details/' + data[i].discountPolicyId;
-    td6.appendChild(toDetailsA); 
+    td6.appendChild(toDetailsA);
     var toggleA = document.createElement('a');
     toggleA.setAttribute('class', 'uk-margin-small-left');
     // var status_changeToThis = '';
@@ -1598,18 +1708,18 @@ Sta_table.prototype.getTable_getAllDiscountPolicy = function(res, pageNumber, pa
 function Modal(data, title, id) {
   this.data = data;
   this.title = title;
-  this.id = id? id: null;
+  this.id = id ? id : null;
 }
 Modal.prototype.create = function() {
   var data = this.data,
-      titleText = this.title,
-      modalId = this.id,
-      modal = document.createElement('div'),
-      dialog = document.createElement('div'),
-      mheader = document.createElement('div'),
-      mtitle = document.createElement('h2'),
-      mbody = document.createElement('div'),
-      mform = document.createElement('form');
+    titleText = this.title,
+    modalId = this.id,
+    modal = document.createElement('div'),
+    dialog = document.createElement('div'),
+    mheader = document.createElement('div'),
+    mtitle = document.createElement('h2'),
+    mbody = document.createElement('div'),
+    mform = document.createElement('form');
   modal.setAttribute('id', modalId);
   modal.setAttribute('uk-modal', '');
   dialog.setAttribute('class', 'uk-modal-dialog');
@@ -1625,9 +1735,9 @@ Modal.prototype.create = function() {
   mheader.appendChild(mtitle);
   var feeItemList = JSON.parse(data.feeItemList);
   // console.log(feeItemList);
-  for ( var i = 0; i < feeItemList.length; i++) {
+  for (var i = 0; i < feeItemList.length; i++) {
     var els = Modal.createInpList(feeItemList[i]);
-    for ( var j = 0; j < els.length; j++) {
+    for (var j = 0; j < els.length; j++) {
       mform.appendChild(els[j]);
     }
   }
@@ -1647,10 +1757,10 @@ Modal.prototype.create = function() {
 }
 Modal.setInpLinks = function(form, feeWt) {
   var inp_feeItemList = form.querySelectorAll('input[data-feeItemList]'),
-      inp_totalfee = form.querySelector('input[name=totalFee]');
+    inp_totalfee = form.querySelector('input[name=totalFee]');
   var inp_spec = form.querySelector('input[data-fee=spec]'),
-      inp_rate = null;
-  if ( inp_spec ) {
+    inp_rate = null;
+  if (inp_spec) {
     inp_rate = form.querySelector('input[name=feerate]');
     inp_rate.addEventListener('blur', function(event) {
       event.preventDefault();
@@ -1666,11 +1776,12 @@ Modal.setInpLinks = function(form, feeWt) {
         event.preventDefault();
         inp_totalfee.setAttribute('value', getTotalFee());
       });
-    } 
+    }
   }
+
   function getTotalFee() {
     var result = 0;
-    for ( var i = 0; i < inp_feeItemList.length; i++) {
+    for (var i = 0; i < inp_feeItemList.length; i++) {
       var list = inp_feeItemList[i];
       if (list.name != 'feerate' || list.getAttribute('data-fee') != 'spec') {
         result += Number(list.value);
@@ -1678,6 +1789,7 @@ Modal.setInpLinks = function(form, feeWt) {
     }
     return result;
   }
+
   function getSpecFee(feeWt, oldValue) {
     var result = 0
     result = Number(feeWt) * Number(oldValue);
@@ -1692,7 +1804,7 @@ Modal.getPostData = function(form) {
     remark: ''
   };
   var feeItemListNode = form.querySelectorAll('input[data-feeItemList]'),
-      feerateNode = form.querySelector('input[name=feerate]');
+    feerateNode = form.querySelector('input[name=feerate]');
   postData.stockNo = form.getAttribute('data-stockNo');
   postData.totalFee = form.querySelector('input[name=totalFee]').value;
   postData.remark = form.querySelector('textarea[name=description]').value;
@@ -1710,13 +1822,13 @@ Modal.getPostData = function(form) {
 };
 Modal.getButtonSection = function(form) {
   var mSection = document.createElement('section'),
-      mSubmitBtn = document.createElement('button'),
-      mCancelBtn = document.createElement('button');
+    mSubmitBtn = document.createElement('button'),
+    mCancelBtn = document.createElement('button');
   mSection.setAttribute('class', 'action-buttons');
   mSubmitBtn.setAttribute('class', 'button button-primary button-rounded uk-modal-close');
   mSubmitBtn.innerText = '确定';
   mSubmitBtn.style.marginRight = '5px';
-  mSubmitBtn.addEventListener('click', function(event){
+  mSubmitBtn.addEventListener('click', function(event) {
     event.preventDefault();
     var url = document.querySelector('input[name=api_stationFeeUpdate]').value;
     var data = Modal.getPostData(form);
@@ -1731,8 +1843,8 @@ Modal.getButtonSection = function(form) {
 }
 Modal.getDescTextarea = function(name, text) {
   var mDiv = document.createElement('div'),
-      mLabel = document.createElement('label'),
-      mTextarea = document.createElement('textarea');
+    mLabel = document.createElement('label'),
+    mTextarea = document.createElement('textarea');
   mDiv.setAttribute('class', 'uk-width-1-1');
   mLabel.setAttribute('class', 'uk-form-label');
   mLabel.innerText = text;
@@ -1749,10 +1861,10 @@ Modal.getDescTextarea = function(name, text) {
 };
 Modal.getTotalFeeInput = function(data, name, text) {
   var mDiv = document.createElement('div'),
-      mLabel = document.createElement('label'),
-      mInput = document.createElement('input'),
-      feeItemList = JSON.parse(data.feeItemList),
-      totalFee = 0;
+    mLabel = document.createElement('label'),
+    mInput = document.createElement('input'),
+    feeItemList = JSON.parse(data.feeItemList),
+    totalFee = 0;
   mDiv.setAttribute('class', 'uk-width-1-1');
   mLabel.setAttribute('class', 'uk-form-label');
   mLabel.innerText = text;
@@ -1770,36 +1882,37 @@ Modal.getTotalFeeInput = function(data, name, text) {
   return mDiv;
 };
 Modal.createInpList = function(data) {
-  var feerate = data.feerate? data.feerate: null,
-      fee = data.fee,
-      feeId = data.feeId,
-      feeShortNM = data.feeShortNM;
+  var feerate = data.feerate ? data.feerate : null,
+    fee = data.fee,
+    feeId = data.feeId,
+    feeShortNM = data.feeShortNM;
   if (feeShortNM === '处置费') {
     var el1 = createInp('feerate'),
-        el2 = createInp('spec');
+      el2 = createInp('spec');
     return [el1, el2];
   } else {
     var el = createInp();
     return [el];
   }
+
   function createInp(type) {
     var flag = (type === 'feerate'),
-        formItem = document.createElement('div'),
-        label = document.createElement('label'),
-        input = document.createElement('input');
-    var inpMaxLength = 15;  // 最大输入字符数量
+      formItem = document.createElement('div'),
+      label = document.createElement('label'),
+      input = document.createElement('input');
+    var inpMaxLength = 15; // 最大输入字符数量
     formItem.setAttribute('class', 'uk-width-1-2');
     label.setAttribute('class', 'uk-form-label');
     input.setAttribute('class', 'uk-input');
     input.setAttribute('type', 'number');
     input.setAttribute('min', 0);
-    input.setAttribute('name', flag? 'feerate': feeId);
-    if (type === 'spec') {  // 处置费不可编辑
+    input.setAttribute('name', flag ? 'feerate' : feeId);
+    if (type === 'spec') { // 处置费不可编辑
       input.setAttribute('data-fee', 'spec');
       input.setAttribute('readonly', '');
     } else {
       // 其他可以编辑
-      if (!flag) {  // 除费率外其他费用限制字符
+      if (!flag) { // 除费率外其他费用限制字符
         input.setAttribute('maxlength', inpMaxLength);
       }
       input.addEventListener('focus', function(event) {
@@ -1820,13 +1933,13 @@ Modal.createInpList = function(data) {
       });
     }
     label.setAttribute('for', input.name);
-    label.innerText = flag? '地面费率': feeShortNM;
+    label.innerText = flag ? '地面费率' : feeShortNM;
     if (!flag) {
       input.setAttribute('data-feeItemList', '');
       // 非费率只能输入固定字符内整数
       input.addEventListener('input', function(event) {
         event.preventDefault();
-        this.value = this.value.replace(/\D/g,'');
+        this.value = this.value.replace(/\D/g, '');
         if (this.value.length > inpMaxLength) {
           this.value = this.value.slice(0, inpMaxLength);
         }
@@ -1838,14 +1951,15 @@ Modal.createInpList = function(data) {
         this.value = this.value.match(/^\d+(?:\.\d{0,2})?/);
       });
     }
-    input.setAttribute('value', flag? feerate: fee);
-    input.setAttribute('step', flag? '0.01': '1');
+    input.setAttribute('value', flag ? feerate : fee);
+    input.setAttribute('step', flag ? '0.01' : '1');
     input.setAttribute('data-feeShortNM', feeShortNM);
     formItem.appendChild(label);
     formItem.appendChild(input);
-    return formItem; 
+    return formItem;
   }
 };
+
 function fn_getModal(data, title, id) {
   var mod = new Modal(data, title, id);
   return mod.create();
