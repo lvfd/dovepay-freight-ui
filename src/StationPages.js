@@ -926,9 +926,29 @@ Sta_table.prototype.getTable_queryBill_new = function(res, pageNumber, pageSize)
     var trInThead = Glob_fn.Table.getThTr(table);
     var checkAll = Glob_fn.Table.getCheckbox('all');
     trInThead = role === 'agent' ? setAgentThead() : setThead();
+    getCaptionData();
     setTbody(res);
     if (role === 'station') setCheckAll(checkAll);
     fn_initPaginate(res, pageNumber, pageSize, fetchData, new Sta_table().getTable_queryBill_new);
+
+    function getCaptionData() {
+      var inp = document.querySelector('input[name=api_queryBillSum]');
+      if (!inp) return;
+      var url = inp.value;
+      if (!url) return;
+      var postData = JSON.stringify($(document.getElementById('dataForm')).serializeObject());
+      fetchData(url, postData, setCaption);
+    }
+
+    function setCaption(res) {
+      var data = res.data;
+      var caption = table.querySelector('caption');
+      if (!caption) return;
+      caption.querySelector('span.totalFee').innerText = data.totalAmount ? data.totalAmount : '无数据';
+      caption.querySelector('span.realTotalFee').innerText = data.preferentialTotalAmount ? data.preferentialTotalAmount : '无数据';
+      caption.querySelector('span.totalWeight').innerText = data.totalWeight ? data.totalWeight : '无数据';
+      caption.removeAttribute('hidden');
+    }
 
     function setThead() {
       if (role === 'station') Glob_fn.Table.setTh(trInThead, checkAll);
@@ -983,7 +1003,7 @@ Sta_table.prototype.getTable_queryBill_new = function(res, pageNumber, pageSize)
           var checkbox = Glob_fn.Table.getCheckbox();
           checkbox.querySelector('input').setAttribute('data-checked', data[i].orderNo);
         }
-        // var setTdSerial = Glob_fn.Table.setTdSerial(tr, i, pageNumber, pageSize);
+        Glob_fn.Table.setTdSerial(tr, i, pageNumber, pageSize);
         Glob_fn.Table.setTd(tr, data[i].createTimeStr);
         Glob_fn.Table.setTd(tr, data[i].orderTime);
         if (role === 'agent') {
