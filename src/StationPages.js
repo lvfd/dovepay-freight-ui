@@ -944,9 +944,9 @@ Sta_table.prototype.getTable_queryBill_new = function(res, pageNumber, pageSize)
       var data = res.data;
       var caption = table.querySelector('caption');
       if (!caption) return;
-      caption.querySelector('span.totalFee').innerText = data.totalAmount ? data.totalAmount : '无数据';
-      caption.querySelector('span.realTotalFee').innerText = data.preferentialTotalAmount ? data.preferentialTotalAmount : '无数据';
-      caption.querySelector('span.totalWeight').innerText = data.totalWeight ? data.totalWeight : '无数据';
+      caption.querySelector('span.totalFee').innerText = data?.totalAmount ? data.totalAmount : '0';
+      caption.querySelector('span.realTotalFee').innerText = data?.preferentialTotalAmount ? data.preferentialTotalAmount : '0';
+      caption.querySelector('span.totalWeight').innerText = data?.totalWeight ? data.totalWeight : '0';
       caption.removeAttribute('hidden');
     }
 

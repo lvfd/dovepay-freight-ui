@@ -9,7 +9,7 @@ var Glob_fn = {
   errorHandler: function(error, callback) {
     var errMsg = error? error: '未知错误';
     if (console) {
-      console.error('错误信息IN_CONSOLE: ', errMsg);
+      console.error('错误信息IN_CONSOLE: ', errMsg, errMsg.stack);
     }
     if (UIkit) {
       try {
@@ -612,8 +612,8 @@ var Glob_fn = {
         var tabwidth = window.getComputedStyle(table, null).getPropertyValue('width').slice(0, -2);
         var divwidth = window.getComputedStyle(div, null).getPropertyValue('width').slice(0, -2);
         if (Number(tabwidth) > Number(divwidth)) {
-          container.classList.remove('normalWidth');
-          container.classList.add('largeWidth');
+          container?.classList.remove('normalWidth');
+          container?.classList.add('largeWidth');
         }
       } catch(error) {
         console.error(error);
